@@ -1,0 +1,37 @@
+.button_submit {
+    background-color: #4CAF50; /* Green */
+    padding: 10px 22px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 8px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    background-color: #6eea4c;
+    color: black;
+}
+
+.button_submit:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.button_reset {
+    background-color: #e52020; /* Red */
+    padding: 10px 22px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 8px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border-color: #d45b78;
+    color: black;
+}
+
+.button_reset:hover {
+    background-color: #f50000;
+    color: white;
+}

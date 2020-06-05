@@ -1,0 +1,28 @@
+.home {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: 100px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    font-size: calc(10px + 2vmin);
+    color: #ffffff;
+}
+
+#orgPaper {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #0a8c92;
+}
+
+#mspPaper {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #0a8c92;
+}
+
+* {
+    box-sizing: border-box;
+}
+

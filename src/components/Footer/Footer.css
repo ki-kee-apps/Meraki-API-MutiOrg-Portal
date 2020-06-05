@@ -1,0 +1,19 @@
+.footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 40px;
+    overflow: hidden;
+    background-color: #42c9ff;
+    color: white;
+}
+
+.footer div.company {
+    color: black;
+    text-align: center;
+    padding: 12px;
+    text-decoration: none;
+    font-size: 18px;
+    line-height: 20px;
+}
