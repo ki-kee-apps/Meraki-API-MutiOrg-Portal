@@ -4,10 +4,10 @@ import {AppContext} from "../../Context/appContext";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
-import DeviceDetailed from "../../../views/OrgHome/OrgHomeHeader/deviceInventoryDetailed";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
+import OrgAdminsDetailed from "../../../views/OrgHome/OrgHomeHeader/orgAdminDetailed";
 
 const httpReq = (url) => {
     const headers = new Headers();
@@ -45,7 +45,7 @@ const getNumberOfAdmins = async (
 {
     const shard = await getOrgShard(contextOrg, orgId);
     if (shard !== '') {
-        const url = "https://" + shard + ".meraki.com/api/v0/organizations/" + orgId + "/admins";
+        const url = contextOrg.proxyURL + "https://" + shard + ".meraki.com/api/v0/organizations/" + orgId + "/admins";
         setTimeout(() => {
             fetch(httpReq(url))
                 .then(response => {
@@ -62,7 +62,7 @@ const getNumberOfAdmins = async (
                 .catch(error => {
                     return error;
                 });
-        }, 1250);
+        }, 1000);
     }
 }
 
@@ -70,16 +70,18 @@ const OrgAdminSummary = (props) => {
     const [contextOrg] = useContext(AppContext);
     const [numberOfAdmins, setNumberOfAdmins] = useState();
     const [orgAdmins, setOrgAdmins] = useState();
+    const [isNotLoaded, setIsNotLoaded] = useState(true);
 
-    useEffect(function() {
-        if(contextOrg.orgList !== '') {
+    useEffect( function(){
+        if(contextOrg.orgList.length > 0 && isNotLoaded) {
+            setIsNotLoaded(false);
             getNumberOfAdmins(
                 contextOrg,
                 props.orgId,
                 setNumberOfAdmins,
                 setOrgAdmins);
         }
-    },[contextOrg]);
+    }, [contextOrg, isNotLoaded, props.orgId]);
 
     // Handle Open Admin Details Dialog
     const [open, setOpen] = useState(false);
@@ -102,20 +104,23 @@ const OrgAdminSummary = (props) => {
     }, [open]);
 
     return(
-        <div style={{ cursor: 'pointer' }}>
+        <div>
             <Paper
                 style={{height: 200, width: 170}}
+                onClick={handleClickOpen('paper')}
                 variant="outlined">
-                <h3 style={{paddingLeft: 20, paddingRight: 20, fontSize: 30}}> Admins</h3>
+                <h3 style={{paddingLeft: 20, paddingRight: 20, fontSize: 30, marginTop: 12}}> Admins</h3>
                 <h1 style={{fontSize: 50}}>{numberOfAdmins}</h1>
             </Paper>
 
             <Dialog
                 open={open}
                 onClose={handleClose}
-                style={{maxHeight: 750}}
+                style={{maxHeight: 850}}
+                fullWidth={true}
+                maxWidth = {'md'}
                 scroll={scroll}>
-                <DialogTitle id="scroll-dialog-title">License Info</DialogTitle>
+                <DialogTitle id="scroll-dialog-title">Administrators</DialogTitle>
 
                 <DialogContent dividers={scroll === 'paper'}>
                     <DialogContentText
@@ -123,9 +128,9 @@ const OrgAdminSummary = (props) => {
                         ref={descriptionElementRef}
                         tabIndex={-1}>
 
-{/*
-                        <DeviceDetailed orgId={props.orgId} deviceDetailed={orgAdmins} />
-*/}
+
+                        <OrgAdminsDetailed orgId={props.orgId} orgAdminsDetailed={orgAdmins} />
+
                     </DialogContentText>
                 </DialogContent>
 

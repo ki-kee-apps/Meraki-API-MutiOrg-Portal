@@ -4,6 +4,7 @@ import LicenseSummary from "../../../components/OrgHome/OrgHomeHeader/licenseSum
 import NetworksSummary from "../../../components/OrgHome/OrgHomeHeader/networksSummary";
 import DevicesSummary from "../../../components/OrgHome/OrgHomeHeader/deviceSummary";
 import OrgAdminSummary from "../../../components/OrgHome/OrgHomeHeader/orgAdminSummary";
+import './orgHomeHeader.css';
 
 const OrgHomeHeader = (props) => {
 
@@ -15,20 +16,20 @@ const OrgHomeHeader = (props) => {
                 direction="row"
                 justify="center"
                 alignItems="flex-start">
-                <Grid item>
+                <Grid className="orgHomeHeaderGridItem" item>
                     <LicenseSummary orgId={props.orgId} />
                 </Grid>
 
-                <Grid item>
-                    <NetworksSummary orgId={props.orgId} />
+                <Grid className="orgHomeHeaderGridItem" item>
+                    <OrgAdminSummary orgId={props.orgId} />
                 </Grid>
 
-                <Grid item>
+                <Grid className="orgHomeHeaderGridItem" item>
                     <DevicesSummary orgId={props.orgId} />
                 </Grid>
 
                 <Grid item>
-                    <OrgAdminSummary orgId={props.orgId} />
+                    <NetworksSummary orgId={props.orgId} />
                 </Grid>
 
             </Grid>

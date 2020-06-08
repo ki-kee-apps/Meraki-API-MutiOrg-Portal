@@ -38,7 +38,7 @@ const getNumberOfNetworks = async (
 {
     const shard = await getOrgShard(contextOrg, orgId);
     if (shard !== '') {
-        const url = "https://" + shard + ".meraki.com/api/v0/organizations/" + orgId + "/networks";
+        const url = contextOrg.proxyURL + "https://" + shard + ".meraki.com/api/v0/organizations/" + orgId + "/networks";
         setTimeout(() => {
             fetch(httpReq(url))
                 .then(response => {
@@ -54,28 +54,30 @@ const getNumberOfNetworks = async (
                 .catch(error => {
                     return error;
                 });
-        }, 750);
+        }, 2000);
     }
 }
 
 const NetworksSummary = (props) => {
     const [contextOrg] = useContext(AppContext);
     const [numberOfNetworks, setNumberOfNetworks] = useState();
+    const [isNotLoaded, setIsNotLoaded] = useState(true);
 
-    useEffect(function(){
-        if(contextOrg.orgList !== '') {
+    useEffect( function(){
+        if(contextOrg.orgList.length > 0 && isNotLoaded) {
+            setIsNotLoaded(false);
             getNumberOfNetworks(
                 contextOrg,
                 props.orgId,
                 setNumberOfNetworks);
         }
-    }, [contextOrg]);
+    }, [contextOrg, isNotLoaded, props.orgId]);
 
     return(
         <Paper
             style={{height: 200, width: 170}}
             variant="outlined">
-            <h3 style={{paddingLeft: 20, paddingRight: 20, fontSize: 30}}>Networks</h3>
+            <h3 style={{paddingLeft: 20, paddingRight: 20, fontSize: 30, marginTop: 12}}>Networks</h3>
 
             <h1 style={{fontSize: 50}}>{numberOfNetworks}</h1>
         </Paper>

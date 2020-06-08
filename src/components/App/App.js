@@ -40,13 +40,13 @@ const App = () => {
         setApiKey(apikey);
         /* Triggered to submit the API Key */
         if ((apikey.length) > 30 && (apikey.length) < 45) {
-            const url = "https://n246.meraki.com/api/v0/organizations";
+            const url = appState.proxyURL + "https://api.meraki.com/api/v0/organizations";
             const headers = new Headers();
             headers.append('Content-Type', 'application/json');
             headers.append('Accept', 'application/json');
             headers.append('X-Cisco-Meraki-API-Key', apikey);
 
-            const req = new Request(url, {
+            const req = new Request(appState.proxyURL + url, {
                 method: 'GET',
                 headers: headers,
                 mode: 'cors',

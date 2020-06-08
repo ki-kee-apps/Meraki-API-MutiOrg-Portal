@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
-
-//import './org.css'
+import {useHistory} from 'react-router';
+import './org.css'
 import {AppContext} from "../../../components/Context/appContext";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -11,8 +11,10 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from "@material-ui/core/TextField";
 import {Link} from "react-router-dom";
-import Tooltip from "@material-ui/core/Tooltip";
+import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
+import Tooltip from "@material-ui/core/Tooltip";
+
 
 function filterOrgs(unfiltered, columnName, searchString) {
     if (searchString === "") return [...unfiltered]
@@ -22,13 +24,16 @@ function filterOrgs(unfiltered, columnName, searchString) {
 }
 
 const Org = () => {
+    const history = useHistory();
     const [contextValue] = useContext(AppContext);
     const [orgList, setOrgList] = useState([]);
     const [orgListFiltered, setOrgListFiltered] = useState([]);
+    const [isNotLoaded, setIsNotLoaded] = useState(true);
 
     // Initialization
     useEffect(() => {
-        if (contextValue.orgList.length > 0) {
+        if (contextValue.orgList.length > 0 && isNotLoaded) {
+            setIsNotLoaded(false);
             let orgs = []
             contextValue.orgList.forEach(entry => {
                 orgs.push({
@@ -38,9 +43,8 @@ const Org = () => {
                 })
             });
             setOrgList([...orgs]);
-            setOrgListFiltered([...orgs]);
         }
-    }, [contextValue]);
+    }, [contextValue, isNotLoaded]);
 
     // Network List Pagination
     const [page, setPage] = React.useState(0);
@@ -60,7 +64,7 @@ const Org = () => {
             let filteredResults = filterOrgs(orgList, searchColumn, searchString)
             setOrgListFiltered(filteredResults)
         },
-        [searchString, searchColumn, orgListFiltered])
+        [searchString, searchColumn, orgList])
 
 
     return (
@@ -72,7 +76,10 @@ const Org = () => {
                 label="Org Search"
                 type="search"
                 value={searchString}
-                onChange={e => setSearchString(e.target.value)}
+                onChange={e => {
+                    setPage(0);
+                    setSearchString(e.target.value);
+                }}
                 variant="outlined"/>
 
             <div>
@@ -81,12 +88,12 @@ const Org = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell align="right"
-                                           style={{fontWeight: "bold", fontSize: 16}}>S.No</TableCell>
+                                           style={{fontWeight: "bold", fontSize: 16, width: 120}}>S.No</TableCell>
                                 <TableCell align="center" style={{fontWeight: "bold", fontSize: 16, width: 150}}>Org
                                     Name</TableCell>
                                 <TableCell align="center" style={{fontWeight: "bold", fontSize: 16}}>Org
                                     ID</TableCell>
-                                <TableCell align="center"
+                                <TableCell align='center'
                                            style={{fontWeight: "bold", fontSize: 16}}>URL</TableCell>
                             </TableRow>
                         </TableHead>
@@ -95,21 +102,24 @@ const Org = () => {
                                 if (index >= rowsPerPage * page && index < rowsPerPage * (page + 1)) {
                                     return (
                                         <TableRow key={entry.id}>
-                                            <TableCell align="left" style={{width: 110}}>
-                                                <Tooltip title="test">
-                                                    <InfoIcon
-                                                        fontSize="small"
-                                                    />
+                                            <TableCell align="left" onClick={() => history.push(`${entry.id}/`)}>
+                                                <Tooltip title={JSON.stringify(entry)} interactive>
+                                                    <IconButton size="small">
+                                                        <InfoIcon
+                                                            fontSize="small"
+                                                        />
+                                                    </IconButton>
                                                 </Tooltip>
                                                 {(index + 1)}
                                             </TableCell>
-                                            <TableCell align="left">
-                                                <Link to={`${entry.id}/`}>
-                                                    {entry.name}
-                                                </Link>
+                                            <TableCell align="left" onClick={() => history.push(`${entry.id}/`)}>
+                                                {entry.name}
                                             </TableCell>
                                             <TableCell align="center"
-                                                       style={{fontSize: 12}}>{entry.id}</TableCell>
+                                                       onClick={() => history.push(`${entry.id}/`)}
+                                                       style={{fontSize: 12}}>
+                                                {entry.id}
+                                            </TableCell>
                                             <TableCell align="center">
                                                 <Link
                                                     component="button"

@@ -7,6 +7,7 @@ export const AppContextProvider = props => {
     const [appState, _setAppState] = useState({
         orgList: [],
         contextApiKey: '',
+        proxyURL: 'https://young-inlet-06199.herokuapp.com/',
     });
     const setAppState = (update) => {
         let state = appState || {};

@@ -40,13 +40,12 @@ const getLicenseStatus = async (
     contextOrg,
     orgId,
     setIsLicenseCompliant,
-    setLicenseType,
     setLicenseExpiry,
     setLicensedDevices) =>
 {
     const shard = await getOrgShard(contextOrg, orgId);
     if (shard !== '') {
-        const url = "https://" + shard + ".meraki.com/api/v0/organizations/" + orgId + "/licenseState";
+        const url = contextOrg.proxyURL + "https://" + shard + ".meraki.com/api/v0/organizations/" + orgId + "/licenseState";
         setTimeout(() => {
             fetch(httpReq(url))
                 .then(response => {
@@ -73,22 +72,44 @@ const getLicenseStatus = async (
     }
 }
 
+const getOrgLicenseType = async(contextOrg, orgId, setLicenseType) => {
+    const shard = await getOrgShard(contextOrg, orgId);
+    if (shard !== '') {
+        const url = contextOrg.proxyURL + "https://" + shard + ".meraki.com/api/v0/organizations/" + orgId + "/licenses";
+        setTimeout(() => {
+            fetch(httpReq(url))
+                .then(response => {
+                    if (response.status === 400) {
+                        setLicenseType("Co-Term")
+                    } else {
+                        setLicenseType("PDL")
+                    }
+                })
+                .catch(error => {
+                    return error;
+                });
+        }, 500)
+    }
+}
+
 const LicenseSummary = (props) => {
     const [contextOrg] = useContext(AppContext);
     const [isLicenseCompliant, setIsLicenseCompliant] = useState(false);
-    const [licenseType, setLicenseType] = useState('co-term');
+    const [licenseType, setLicenseType] = useState('');
     const [licenseExpiry, setLicenseExpiry] = useState('');
     const [licensedDevices, setLicensedDevices] = useState('');
+    const [isNotLoaded, setIsNotLoaded] = useState(true);
 
     useEffect( function(){
-        if(contextOrg.orgList !== '') {
+        if(contextOrg.orgList.length > 0 && isNotLoaded) {
+            setIsNotLoaded(false);
             getLicenseStatus(
                 contextOrg,
                 props.orgId,
                 setIsLicenseCompliant,
-                setLicenseType,
                 setLicenseExpiry,
                 setLicensedDevices);
+            getOrgLicenseType(contextOrg, props.orgId, setLicenseType);
         }
     }, [contextOrg]);
 
@@ -113,7 +134,7 @@ const LicenseSummary = (props) => {
     }, [open]);
 
     return(
-        <div style={{ cursor: 'pointer' }}>
+        <div>
             <Paper
                 style={
                     isLicenseCompliant ?
@@ -122,9 +143,9 @@ const LicenseSummary = (props) => {
                 onClick={handleClickOpen('paper')}
                 variant="outlined">
                 <div style={{paddingLeft: 20, paddingRight: 20}}>
-                    <h3 style={{fontSize: 30}}>License</h3>
+                    <h3 style={{fontSize: 30, marginTop: 12}}>License</h3>
+                    <p style={{fontSize: 30, fontWeight: "bold"}}>{licenseExpiry.replace(",", "\n")}</p>
                     <p style={{fontSize: 16}}>Type: {licenseType}</p>
-                    <p style={{fontSize: 20,}}>{licenseExpiry}</p>
                 </div>
             </Paper>
 

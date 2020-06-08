@@ -1,0 +1,12 @@
+.orgHomeHeaderGridItem{
+    transition: transform .2s; /* Animation */
+}
+
+.orgHomeHeaderGridItem:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+    color: #42c9ff;
+}
+
+
+

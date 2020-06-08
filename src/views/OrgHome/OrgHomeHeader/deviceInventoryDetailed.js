@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useContext, useEffect, useState} from "react";
 import Table from "@material-ui/core/Table";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
@@ -10,56 +10,69 @@ import Grid from "@material-ui/core/Grid";
 import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
+import {AppContext} from "../../../components/Context/appContext";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import EjectIcon from '@material-ui/icons/Eject';
+import InfoIcon from "@material-ui/icons/Info";
+import Tooltip from "@material-ui/core/Tooltip";
 
-function filterDevices(searchColumnIndex) {
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("deviceFilter");
-    filter = input.value.toUpperCase();
-    table = document.getElementById("detailedDevicedTable");
-    tr = table.getElementsByTagName("tr");
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[searchColumnIndex];
-        if (td) {
-            txtValue = td.textContent || td.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
-    }
+
+function filterDevices(unfiltered, columnName, searchString) {
+    if (searchString==="") return [...unfiltered]
+    return unfiltered.filter((entry) => {
+        return (entry[columnName] && entry[columnName].toUpperCase().indexOf(searchString.toUpperCase())>=0)
+    })
 }
 
 const DeviceDetailed = (props) => {
-    const [searchColumnIndex, setSearchColumnIndex] = React.useState(1);
+    const [contextOrg] = useContext(AppContext);
+    const [searchString, setSearchString] = useState("");
+    const [deviceFiltered, setDeviceFiltered] = useState([]);
+    const [searchColumn, setSearchColumn] = useState("name");
     const handleChange = (event) => {
-        setSearchColumnIndex(event.target.value);
+        setSearchColumn(event.target.value);
     };
+
+    useEffect(() => {
+            let filteredResults = filterDevices(props.deviceDetailed, searchColumn, searchString)
+            setDeviceFiltered(filteredResults)
+        },
+        [searchString, searchColumn])
+
+    const getNetworkName = (networkId) => {
+        let name = "-";
+        if (networkId !== '') {
+            contextOrg.networkIdToNameMap.map(entry => {
+                if (entry.id === networkId)
+                    name = entry.name
+                return 0;
+            })
+        }
+        return name;
+    }
 
     return (
         <div>
             <Grid
                 container
                 spacing={3}
-                direction="row"
-                justify="left"
-                alignItems="flex-start">
+                direction="row">
                 <Grid item>
                     <InputLabel shrink id="select-device-search-by-filter">
                         Search By...
                     </InputLabel>
                     <Select
                         labelId="select-device-search-by-filter"
-                        value={searchColumnIndex}
+                        value={searchColumn}
                         onChange={handleChange}
-                        displayEmpty
-                    >
-                        <MenuItem value={1}>Device Name</MenuItem>
-                        <MenuItem value={2}>MAC Address</MenuItem>
-                        <MenuItem value={3}>Serial Number</MenuItem>
-                        <MenuItem value={4}>Network</MenuItem>
-                        <MenuItem value={5}>Model</MenuItem>
-                        <MenuItem value={6}>Tag</MenuItem>
+                        displayEmpty>
+                            <MenuItem value={"name"}>Device Name</MenuItem>
+                            <MenuItem value={"mac"}>MAC Address</MenuItem>
+                            <MenuItem value={"serial"}>Serial Number</MenuItem>
+                            <MenuItem value={"networkId"}>Network</MenuItem>
+                            <MenuItem value={"model"}>Model</MenuItem>
+                            <MenuItem value={"tags"}>Tag</MenuItem>
                     </Select>
                 </Grid>
                 <Grid item>
@@ -67,7 +80,8 @@ const DeviceDetailed = (props) => {
                         id="deviceFilter"
                         label="Search"
                         type="search"
-                        onChange={ () => filterDevices(searchColumnIndex) }
+                        value={searchString}
+                        onChange={ e =>  setSearchString(e.target.value) }
                         variant="outlined" />
                 </Grid>
             </Grid>
@@ -77,24 +91,74 @@ const DeviceDetailed = (props) => {
                     <TableHead style={{backgroundColor: '#efed78'}}>
                         <TableRow>
                             <TableCell style={{fontWeight: "bold", align: "center", fontSize: 16}}>S.No</TableCell>
-                            <TableCell style={{fontWeight: "bold", align: "center", fontSize: 16}}>Name</TableCell>
-                            <TableCell style={{fontWeight: "bold", align: "center", fontSize: 16}}>MAC Address</TableCell>
-                            <TableCell style={{fontWeight: "bold", align: "center", fontSize: 16}}>Serial</TableCell>
-                            <TableCell style={{fontWeight: "bold", align: "center", fontSize: 16}}>Network</TableCell>
-                            <TableCell style={{fontWeight: "bold", align: "center", fontSize: 16}}>Model</TableCell>
-                            <TableCell style={{fontWeight: "bold", align: "center", fontSize: 16}}>Tags</TableCell>
+                            <TableCell align='center' style={{fontWeight: "bold", fontSize: 16}}>Name</TableCell>
+                            <TableCell align='center' style={{fontWeight: "bold", fontSize: 16}}>MAC Address</TableCell>
+                            <TableCell align='center' style={{fontWeight: "bold", fontSize: 16, width: 160}}>Serial</TableCell>
+                            <TableCell align='center' style={{fontWeight: "bold", fontSize: 16}}>Network</TableCell>
+                            <TableCell align='center' style={{fontWeight: "bold", fontSize: 16, width: 150}}>Model</TableCell>
+                            <TableCell align='center' style={{fontWeight: "bold", fontSize: 16}}>Tags</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {props.deviceDetailed.map((entry, index) => (
+                        {deviceFiltered.map((entry, index) => (
                             <TableRow key={index}>
-                                <TableCell style={{align: "center"}}>{index+1}</TableCell>
-                                <TableCell style={{align: "center"}}>{entry.name}</TableCell>
+                                <TableCell style={{width: 120}}>
+                                    <Tooltip title={JSON.stringify(entry)} interactive>
+                                        <IconButton size="small">
+                                            <InfoIcon
+                                                fontSize="small"
+                                            />
+                                        </IconButton>
+                                    </Tooltip>
+                                    {(index+1)}
+                                </TableCell>
+                                <TableCell align='left' style={{width: 250}}>{entry.name}</TableCell>
                                 <TableCell align="center">{entry.mac}</TableCell>
-                                <TableCell style={{minWidth: 90}}>{entry.serial}</TableCell>
-                                <TableCell align="center">{entry.networkId}</TableCell>
-                                <TableCell align="center">{entry.model}</TableCell>
-                                <TableCell align="center">{Object.values(entry.tags)}</TableCell>
+                                <TableCell align='left' style={{width: 225}}>{entry.serial}</TableCell>
+                                <TableCell align="center">{entry.networkId.length > 0 ? getNetworkName(entry.networkId) : "-"}
+                                </TableCell>
+                                <TableCell align="left">
+                                    {entry.model}
+                                    <IconButton size="small">
+                                        <EjectIcon
+                                            fontSize="inherit"
+                                            onClick={() => {
+                                                setSearchColumn("model");
+                                                setSearchString(entry.model);
+                                            }}
+                                        />
+                                    </IconButton>
+                                </TableCell>
+                                <TableCell align="center">{
+                                    // eslint-disable-next-line array-callback-return
+                                        (entry.tags.toString().split(" ").map(tag => {
+                                            if (tag !== "")
+                                                return (
+                                                    <Button
+                                                        style={{
+                                                            backgroundColor: '#0c9ed9',
+                                                            color: '#ffffff',
+                                                            fontWeight: 'bold',
+                                                            borderRadius: 3,
+                                                            fontSize: 10,
+                                                            width: 'auto',
+                                                            paddingTop: 0,
+                                                            paddingBottom: 0,
+                                                            paddingLeft: 3,
+                                                            paddingRight: 3
+                                                        }}
+                                                        onClick={() => {
+                                                            setSearchColumn("tags");
+                                                            setSearchString(tag);
+                                                        }}
+                                                        color="primary" >
+                                                            {tag}
+                                                    </Button>
+                                                );
+                                            }
+                                        ))
+                                }
+                                    </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

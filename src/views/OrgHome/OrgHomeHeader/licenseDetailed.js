@@ -15,7 +15,7 @@ const LicenseDetailed = (props) => {
             <Table>
                 <TableHead style={{backgroundColor: '#efed78'}}>
                     <TableRow>
-                        <TableCell style={{fontWeight: "bold", align: "center", fontSize: 16}}>DEVICES</TableCell>
+                        <TableCell style={{fontWeight: "bold", align: "center", fontSize: 16}}>DEVICE</TableCell>
                         <TableCell style={{fontWeight: "bold", align: "center", fontSize: 16}}>LICENSES</TableCell>
                     </TableRow>
                 </TableHead>

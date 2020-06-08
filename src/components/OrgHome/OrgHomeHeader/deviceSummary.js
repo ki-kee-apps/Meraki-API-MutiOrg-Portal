@@ -15,12 +15,11 @@ const httpReq = (url) => {
     headers.append('Accept', 'application/json');
     headers.append('X-Cisco-Meraki-API-Key', localStorage.getItem('meraki-api-key'));
 
-    const req = new Request(url, {
+    return new Request(url, {
         method: 'GET',
         headers: headers,
         mode: 'cors',
     });
-    return req;
 }
 
 const getOrgShard = (contextOrg, orgId) => {
@@ -45,7 +44,7 @@ const getNumberOfDevices = async (
 {
     const shard = await getOrgShard(contextOrg, orgId);
     if (shard !== '') {
-        const url = "https://" + shard + ".meraki.com/api/v0/organizations/" + orgId + "/devices";
+        const url = contextOrg.proxyURL + "https://" + shard + ".meraki.com/api/v0/organizations/" + orgId + "/devices";
         setTimeout(() => {
             fetch(httpReq(url))
                 .then(response => {
@@ -62,7 +61,7 @@ const getNumberOfDevices = async (
                 .catch(error => {
                     return error;
                 });
-        }, 1000);
+        }, 1500);
     }
 }
 
@@ -70,16 +69,18 @@ const DevicesSummary = (props) => {
     const [contextOrg] = useContext(AppContext);
     const [numberOfDevices, setNumberOfDevices] = useState();
     const [orgInventory, setOrgInventory] = useState();
+    const [isNotLoaded, setIsNotLoaded] = useState(true);
 
-    useEffect(function() {
-        if(contextOrg.orgList !== '') {
+    useEffect( function(){
+        if(contextOrg.orgList.length > 0 && isNotLoaded) {
+            setIsNotLoaded(false);
             getNumberOfDevices(
             contextOrg,
             props.orgId,
             setNumberOfDevices,
             setOrgInventory);
         }
-    },[contextOrg]);
+    }, [contextOrg, isNotLoaded, props.orgId]);
 
     // Handle Open Device Details Dialog
     const [open, setOpen] = useState(false);
@@ -102,12 +103,12 @@ const DevicesSummary = (props) => {
     }, [open]);
 
     return(
-        <div style={{ cursor: 'pointer' }}>
+        <div>
             <Paper
                 style={{height: 200, width: 170}}
                 onClick={handleClickOpen('paper')}
                 variant="outlined">
-                <h3 style={{paddingLeft: 20, paddingRight: 20, fontSize: 30}}>Devices</h3>
+                <h3 style={{paddingLeft: 20, paddingRight: 20, fontSize: 30, marginTop: 12}}>Devices</h3>
 
                 <h1 style={{fontSize: 50}}>{numberOfDevices}</h1>
             </Paper>
@@ -116,8 +117,10 @@ const DevicesSummary = (props) => {
                 open={open}
                 onClose={handleClose}
                 style={{maxHeight: 750}}
+                fullWidth={true}
+                maxWidth = {'md'}
                 scroll={scroll}>
-                <DialogTitle id="scroll-dialog-title">License Info</DialogTitle>
+                <DialogTitle id="scroll-dialog-title">Organization Device Inventory</DialogTitle>
 
                 <DialogContent dividers={scroll === 'paper'}>
                     <DialogContentText

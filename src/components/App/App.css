@@ -5,6 +5,7 @@
 .App-body {
   background-color: #282c34;
   min-height: 100vh;
+  width: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
