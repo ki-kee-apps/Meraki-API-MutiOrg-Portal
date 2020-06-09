@@ -62,6 +62,7 @@ const OrgAdminsDetailed = (props) => {
     const getNetworkName = (networkId) => {
         let name = "-";
         if (networkId !== '') {
+            // eslint-disable-next-line array-callback-return
             contextOrg.networkIdToNameMap.map(entry => {
                 if (entry.id === networkId) name = entry.name
                 else return 0;

@@ -9,6 +9,7 @@ import Org from "../Orgs/Org/org"
 import MspMenu from "../MSPMenu/MainMenu/mspmenu";
 import OrgHome from "../OrgHome/OrgHome/orgHome";
 import './home.css';
+import NetworkHome from "../NetworkHome/NetworkHome/networkHome";
 
 
 const Home = () => {
@@ -37,8 +38,11 @@ const Home = () => {
                     </Grid>
                 </Route>
                 <Route
-                    path='/home/:orgId'
+                    exact path='/home/:orgId'
                     render={(props) => <OrgHome { ...props }/>}/>
+                <Route
+                    exact path='/home/:orgId/network/:NetworkId'
+                    render={(props) => <NetworkHome { ...props }/>}/>
                 </Switch>
             <Footer/>
         </div>

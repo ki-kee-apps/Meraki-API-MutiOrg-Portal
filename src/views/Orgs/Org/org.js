@@ -98,6 +98,7 @@ const Org = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
+                            {/* eslint-disable-next-line array-callback-return */}
                             {orgListFiltered.map((entry, index) => {
                                 if (index >= rowsPerPage * page && index < rowsPerPage * (page + 1)) {
                                     return (

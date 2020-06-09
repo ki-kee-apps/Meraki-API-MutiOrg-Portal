@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import {AppContext} from "../../Context/appContext";
+import {useHistory} from 'react-router';
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -68,7 +69,7 @@ const getNetworkList = async (
                 .catch(error => {
                     return error;
                 });
-        }, 2500);
+        }, 3000);
     }
 }
 
@@ -82,7 +83,7 @@ function filterNetworks(unfiltered, columnName, searchString) {
             if (entry[columnName])
                 // eslint-disable-next-line array-callback-return
                 entry[columnName].toString().split(" ").map(tag => {
-                    if (tag.length && tag === searchString)
+                    if (tag.length && tag.toUpperCase() === searchString.toUpperCase())
                         isValidRow = true;
                 })
             return isValidRow;
@@ -96,6 +97,7 @@ function filterNetworks(unfiltered, columnName, searchString) {
 
 const OrgHomeBody = (props) => {
     const [contextOrg] = useContext(AppContext);
+    const history = useHistory();
     const [networkList, setNetworkList] = useState('');
     const [isNotLoaded, setIsNotLoaded] = useState(true);
 
@@ -181,7 +183,7 @@ const OrgHomeBody = (props) => {
                 <Grid item>
                     <TableContainer>
                         <Table id="detailedNetworkTable" stickyHeader>
-                            <TableHead style={{backgroundColor: '#efed78'}}>
+                            <TableHead style={{backgroundColor: '#e0ba62'}}>
                                 <TableRow>
                                     <TableCell align="right"
                                                style={{fontWeight: "bold", fontSize: 16}}>S.No</TableCell>
@@ -202,8 +204,10 @@ const OrgHomeBody = (props) => {
                                 {Object.entries(networksFiltered).map((entry, index) => {
                                     if (index >= rowsPerPage * page && index < rowsPerPage * (page + 1)) {
                                         return (
-                                            <TableRow key={entry[1].id}>
-                                                <TableCell align="left" style={{width: 90}}>
+                                            <TableRow key={entry[1].id} hover style={{cursor: 'pointer'}}>
+                                                <TableCell align="left"
+                                                           onClick={() => history.push(window.location.pathname+'network/'+`${entry[1].id}/`)}
+                                                           style={{width: 90}} >
                                                     <Tooltip title={JSON.stringify(entry[1])} interactive>
                                                         <IconButton size="small">
                                                             <InfoIcon
@@ -213,10 +217,15 @@ const OrgHomeBody = (props) => {
                                                     </Tooltip>
                                                     {(index + 1)}
                                                 </TableCell>
-                                                <TableCell align="left">{entry[1].name}</TableCell>
+                                                <TableCell
+                                                    onClick={() => history.push(window.location.pathname+'network/'+`${entry[1].id}/`)}
+                                                    align="left" >{entry[1].name}</TableCell>
                                                 <TableCell align="center"
+                                                           onClick={() => history.push(window.location.pathname+'network/'+`${entry[1].id}/`)}
                                                            style={{fontSize: 12}}>{entry[1].id}</TableCell>
-                                                <TableCell align="center">{entry[1].type}</TableCell>
+                                                <TableCell
+                                                    onClick={() => history.push(window.location.pathname+'network/'+`${entry[1].id}/`)}
+                                                    align="center">{entry[1].type}</TableCell>
                                                 <TableCell align='center'>
                                                     {entry[1].tags === null ?
                                                         "" :
@@ -249,7 +258,9 @@ const OrgHomeBody = (props) => {
                                                             }
                                                         })}
                                                 </TableCell>
-                                                <TableCell align="left">{entry[1].timeZone}</TableCell>
+                                                <TableCell
+                                                    onClick={() => history.push(window.location.pathname+'network/'+`${entry[1].id}/`)}
+                                                    align="left">{entry[1].timeZone}</TableCell>
                                             </TableRow>
                                         )
                                     }
