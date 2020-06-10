@@ -41,7 +41,7 @@ const Home = () => {
                     exact path='/home/:orgId'
                     render={(props) => <OrgHome { ...props }/>}/>
                 <Route
-                    exact path='/home/:orgId/network/:NetworkId'
+                    exact path='/home/:orgId/network/:networkId'
                     render={(props) => <NetworkHome { ...props }/>}/>
                 </Switch>
             <Footer/>

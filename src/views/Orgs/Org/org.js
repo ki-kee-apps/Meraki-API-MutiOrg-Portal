@@ -14,6 +14,7 @@ import {Link} from "react-router-dom";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
 import Tooltip from "@material-ui/core/Tooltip";
+import Button from "@material-ui/core/Button";
 
 
 function filterOrgs(unfiltered, columnName, searchString) {
@@ -122,14 +123,14 @@ const Org = () => {
                                                 {entry.id}
                                             </TableCell>
                                             <TableCell align="center">
-                                                <Link
-                                                    component="button"
-                                                    variant="body2"
+                                                <Button
+                                                    color='primary'
+                                                    style={{backgroundColor: "white", padding: 0}}
                                                     onClick={() => {
                                                         window.open(entry.url, '_blank').focus();
                                                     }}>
                                                     Dashboard
-                                                </Link>
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     )

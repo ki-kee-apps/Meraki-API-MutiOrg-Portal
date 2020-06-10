@@ -4,6 +4,11 @@ import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import {AppContext} from "../../../components/Context/appContext";
 import {useParams} from "react-router-dom";
+import Paper from "@material-ui/core/Paper";
+import NetworkHomeMenu from "../NetworkMenu/networkHomeMenu";
+import NetworkHomeHeader from "../NetworkHeader/networkHomeHeader";
+import NetworkHomeBody from "../../../components/NetworkHome/NetworkBody/networkBody";
+
 
 const httpReq = (url) => {
     const headers = new Headers();
@@ -54,7 +59,6 @@ const setNetworkObject = async (
                 })
                 .then(data => {
                     setCurrentNetworkObj(data);
-                    console.log(data.name)
                 })
                 .catch(error => {
                     return error;
@@ -67,17 +71,12 @@ const setNetworkObject = async (
 const NetworkHome = (props) => {
     const history = useHistory();
     const [contextOrg] = useContext(AppContext);
-    const { orgId } = useParams();
-    let networkId = '';
+    const { orgId, networkId } = useParams();
     const [isNotLoaded, setIsNotLoaded] = useState(true);
     const [currentNetworkObj, setCurrentNetworkObj] = useState('');
 
     useEffect(function() {
         if(contextOrg.orgList.length > 0 && isNotLoaded) {
-            let url = window.location.pathname;
-            url = url.substring(0, url.lastIndexOf('/'));
-            networkId = url.substring(url.lastIndexOf('/')+1, url.length);
-            console.log(networkId)
             setIsNotLoaded(false);
             setNetworkObject(
                 contextOrg,
@@ -92,24 +91,65 @@ const NetworkHome = (props) => {
             <Grid
                 container
                 direction='row'
-                xs={10}
                 justify="center"
                 alignItems="flex-start">
 
-                <Grid item xs={3}>
-                    <Button style={{marginTop: -30, marginBottom: 15}}
+                <Grid item xs={2} style={{padding: 0,marginTop: -30, marginBottom: 15, position: 'fixed', left: 10}}>
+                    <Button
                         variant="contained" color="secondary"
                         onClick={() => {history.push('../../');}}>
-                        Back to Org Home
+                        Org Home
                     </Button>
                 </Grid>
-                <Grid item xs={9}>
+                <Grid item>
                     <h3 style={{fontSize: 30, marginTop: -30, marginBottom: 15}}>
                         {currentNetworkObj.name}
                     </h3>
                 </Grid>
 
             </Grid>
+
+            <div>
+                <NetworkHomeHeader currentNwObject={currentNetworkObj} />
+            </div>
+
+            <Grid
+                container
+                spacing={3}
+                direction="row"
+                justify="center"
+                alignItems="flex-start">
+
+                <Grid item>
+                    <Paper
+                        style={{
+                            height: 'inherit',
+                            minWidth: 200,
+                            minHeight: 300,
+                            backgroundColor: '#0a8c92',
+                            paddingRight: 20,
+                            paddingLeft: 20}}
+                        variant="outlined">
+                        <NetworkHomeMenu currentNwObject={currentNetworkObj} />
+                    </Paper>
+                </Grid>
+
+                <Grid item>
+                    <Paper
+                        style={{
+                            height: 'inherit',
+                            minWidth: 600,
+                            minHeight: 300,
+                            backgroundColor: '#ffffff',
+                            paddingRight: 20,
+                            paddingLeft: 20}}
+                        variant="outlined">
+                        <NetworkHomeBody currentNwObject={currentNetworkObj}/>
+                    </Paper>
+                </Grid>
+
+            </Grid>
+
         </div>
     );
 }

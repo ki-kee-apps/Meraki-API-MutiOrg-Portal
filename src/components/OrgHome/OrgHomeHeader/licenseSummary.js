@@ -139,7 +139,7 @@ const LicenseSummary = (props) => {
                 style={
                     isLicenseCompliant ?
                         {backgroundColor: "limegreen", height: 200, width: 170} :
-                        {backgroundColor: "red", height: 200, width: 160}}
+                        {backgroundColor: "red", height: 200, width: 170}}
                 onClick={handleClickOpen('paper')}
                 variant="outlined">
                 <div style={{paddingLeft: 20, paddingRight: 20}}>
