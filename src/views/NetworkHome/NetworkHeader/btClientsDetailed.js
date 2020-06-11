@@ -15,94 +15,73 @@ import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
 import moment from "moment";
 
+// Material Table Icons
+import MaterialTable from 'material-table';
+import { forwardRef } from 'react';
+import AddBox from '@material-ui/icons/AddBox';
+import ArrowDownward from '@material-ui/icons/ArrowDownward';
+import Check from '@material-ui/icons/Check';
+import ChevronLeft from '@material-ui/icons/ChevronLeft';
+import ChevronRight from '@material-ui/icons/ChevronRight';
+import Clear from '@material-ui/icons/Clear';
+import DeleteOutline from '@material-ui/icons/DeleteOutline';
+import Edit from '@material-ui/icons/Edit';
+import FilterList from '@material-ui/icons/FilterList';
+import FirstPage from '@material-ui/icons/FirstPage';
+import LastPage from '@material-ui/icons/LastPage';
+import Remove from '@material-ui/icons/Remove';
+import SaveAlt from '@material-ui/icons/SaveAlt';
+import Search from '@material-ui/icons/Search';
+import ViewColumn from '@material-ui/icons/ViewColumn';
 
-function filterBtClients(unfiltered, columnName, searchString) {
-    if (searchString==="") return [...unfiltered]
-    return unfiltered.filter((entry) => {
-        return (entry[columnName] && entry[columnName].toUpperCase().indexOf(searchString.toUpperCase())>=0)
-    })
-}
+const tableIcons = {
+    Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
+    Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
+    Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
+    DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+    Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
+    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
+    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+    SortArrow: forwardRef((props, ref) => <ArrowDownward {...props} ref={ref} />),
+    ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
+    ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
+};
 
 const BtClientsDetailed = (props) => {
-    const [searchString, setSearchString] = useState("");
-    const [btClientsFiltered, setBtClientsFiltered] = useState([]);
-    const [searchColumn, setSearchColumn] = useState("deviceName");
-    const handleChange = (event) => {
-        setSearchColumn(event.target.value);
-    };
-
-    useEffect(() => {
-            let filteredResults = filterBtClients(props.btClientList, searchColumn, searchString)
-            setBtClientsFiltered(filteredResults)
-        },
-        [searchString, searchColumn])
-
     return(
         <div>
-            <Grid
-                container
-                spacing={3}
-                direction="row">
-                <Grid item>
-                    <InputLabel shrink>
-                        Search By...
-                    </InputLabel>
-                    <Select
-                        value={searchColumn}
-                        onChange={handleChange}
-                        displayEmpty>
-                        <MenuItem value={"deviceName"}>Device Name</MenuItem>
-                        <MenuItem value={"manufacturer"}>Manufacturer</MenuItem>
-                        <MenuItem value={"mac"}>MAC Address</MenuItem>
-                        <MenuItem value={"seenByDeviceMac"}>Seen by</MenuItem>
-                    </Select>
-                </Grid>
-                <Grid item>
-                    <TextField
-                        label="Search"
-                        type="search"
-                        value={searchString}
-                        onChange={ e =>  setSearchString(e.target.value) }
-                        variant="outlined" />
-                </Grid>
-            </Grid>
+            <MaterialTable
+                icons={tableIcons}
+                title={"Last " + props.timeframe + " s"}
 
-            <TableContainer>
-                <Table id="detailedDevicedTable">
-                    <TableHead style={{backgroundColor: '#efed78'}}>
-                        <TableRow>
-                            <TableCell style={{fontWeight: "bold", align: "center", fontSize: 16}}>S.No</TableCell>
-                            <TableCell align='center' style={{fontWeight: "bold", fontSize: 16}}>Device Name</TableCell>
-                            <TableCell align='center' style={{fontWeight: "bold", fontSize: 16}}>MAC Address</TableCell>
-                            <TableCell align='center' style={{fontWeight: "bold", fontSize: 16}}>Manufacturer</TableCell>
-                            <TableCell align='center' style={{fontWeight: "bold", fontSize: 16}}>Seen By</TableCell>
-                            <TableCell align='center' style={{fontWeight: "bold", fontSize: 16}}>Last Seen</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {btClientsFiltered.map((entry, index) => (
-                            <TableRow key={index}>
-                                <TableCell style={{width: 70}}>
-                                    <Tooltip title={JSON.stringify(entry)} interactive>
-                                        <IconButton size="small">
-                                            <InfoIcon
-                                                fontSize="small"
-                                            />
-                                        </IconButton>
-                                    </Tooltip>
-                                    {(index+1)}
-                                </TableCell>
-                                <TableCell align='center' style={{fontWeight: "bold", fontSize: 16}}>{entry.deviceName}</TableCell>
-                                <TableCell align='center' style={{fontSize: 14}}>{entry.mac}</TableCell>
-                                <TableCell align='center' style={{fontSize: 16}}>{entry.manufacturer}</TableCell>
-                                <TableCell align='center' style={{fontSize: 14}}>{entry.seenByDeviceMac}</TableCell>
-                                <TableCell align='center' style={{fontSize: 16}}>
-                                    {moment.unix(entry.lastSeen).format('MM-DD-YYYY HH:mm')}                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                options={{
+                    sorting: true,
+                    filtering: true
+                }}
+                columns={[
+                    { title: "Device Name", field: "deviceName" },
+                    { title: "MAC", field: "mac" },
+                    { title: "Manufacturer", field: "manufacturer" },
+                    { title: "Seen By", field: "seenByDeviceMac" },
+                    { title: "Last Seen", field: "lastSeen", filtering: false }
+                ]}
+                data={props.btClientList.map((entry, index) => {
+                    return ({
+                        deviceName: entry.deviceName,
+                        mac: entry.mac,
+                        manufacturer: entry.manufacturer,
+                        seenByDeviceMac: entry.seenByDeviceMac,
+                        lastSeen: entry.lastSeen,
+                    })
+                })}>
+            </MaterialTable>
         </div>
     )
 }

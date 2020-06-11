@@ -1,5 +1,6 @@
-import React from "react";
+import React, {useContext, useEffect} from "react";
 import Paper from "@material-ui/core/Paper";
+import {AppContext} from "../../../Context/appContext";
 
 const ApplianceSummary = (props) => {
     return(

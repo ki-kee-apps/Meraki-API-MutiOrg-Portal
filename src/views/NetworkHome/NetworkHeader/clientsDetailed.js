@@ -69,23 +69,40 @@ const ClientsDetailed = (props) => {
                     filtering: true
                 }}
                 columns={[
-                    { title: "Status", field: "status", width: 2, filtering: false },
+                    { title: "Status",
+                        field: "status",
+                        width: 1,
+                        filtering: false,
+                        render: entry => {return entry.isWired ?
+                         <SettingsEthernetIcon style={entry.status==='Online' ? {color: 'limegreen'}: {color: 'red'}} /> :
+                         <WifiIcon style={entry.status==='Online' ? {color: 'limegreen'}: {color: 'red'}} />}
+                    },
                     { title: "Device Name", field: "name" },
                     { title: "MAC", field: "mac" },
-                    { title: "IP", field: "ip"},
-                    { title: "Usage", field: "usage", filtering: false, searching: false},
+                    { title: "IP", field: "ip", width: 2},
+                    { title: "Usage",
+                        width: 1,
+                        field: "usage",
+                        filtering: false,
+                        searching: false,
+                        render: entry => {
+                            return (entry.usage)  < 1024 ?
+                                Math.ceil(entry.usage) + " KB" :
+                                (entry.usage)/1024 < 1024 ?
+                                    Math.ceil(( entry.usage)/1024) + " MB" :
+                                    Math.ceil( (entry.usage)/1024/1024) + " GB"}
+                    },
+                    { title: "Policy", field: "groupPolicy8021x", width: 2},
                 ]}
                 data={props.clientList.map((entry, index) => {
                     return ({
-                        status: <WifiIcon style={entry.status==='Online' ? {color: 'limegreen'}: {color: 'red'}} />,
+                        status: entry.status,
                         name: entry.description,
                         mac: entry.mac,
                         ip: entry.ip,
-                        usage: (entry.usage.sent + entry.usage.recv) < 1024 ?
-                            Math.ceil( (entry.usage.sent + entry.usage.recv)) + " KB" :
-                            (entry.usage.sent + entry.usage.recv)/1024 < 1024 ?
-                                Math.ceil( (entry.usage.sent + entry.usage.recv)/1024) + " MB" :
-                                Math.ceil( (entry.usage.sent + entry.usage.recv)/1024/1024) + " GB"
+                        usage: (entry.usage.sent + entry.usage.recv),
+                        isWired: entry.ssid===null ? true : false,
+                        groupPolicy8021x: entry.groupPolicy8021x===null ? 'Normal' : entry.groupPolicy8021x
                     })
                 })}>
             </MaterialTable>

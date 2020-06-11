@@ -95,7 +95,7 @@ const BtClientSummary = (props) => {
     const [btClientList, setBtClientList] = useState([]);
 
     // Timeframe Change Handling
-    const [timeframe, setTimeframe] = useState(3600);
+    const [timeFrame, setTimeframe] = useState(3600);
     const [openTimeframeSelect, setOpenTimeFrameSelect] = useState(false);
     const handleChange = (event) => {
         setBtClientList([]);
@@ -116,13 +116,13 @@ const BtClientSummary = (props) => {
                 contextOrg,
                 props.orgId,
                 props.networkId,
-                timeframe,
+                timeFrame,
                 '',
                 btClientList,
                 setBtClientList
             );
         }
-    }, [contextOrg, timeframe]);
+    }, [contextOrg, timeFrame]);
 
     // Handle Open Device Details Dialog
     const [openDialog, setOpenDialog] = useState(false);
@@ -157,7 +157,7 @@ const BtClientSummary = (props) => {
                 </div>
 
                 <div style={{ bottom: 0, left: -5}}>
-                    <Tooltip disableFocusListener interactive title={timeframe}>
+                    <Tooltip disableFocusListener interactive title={timeFrame}>
                         <HistoryIcon />
                     </Tooltip>
 
@@ -167,7 +167,7 @@ const BtClientSummary = (props) => {
                         onClose={handleCloseTimeframeSelect}
                         onOpen={handleOpenTimeframeSelect}
                         onChange={handleChange}
-                        value={timeframe}>
+                        value={timeFrame}>
                         <MenuItem value={3600}>1 Hour</MenuItem>
                         <MenuItem value={7200}>2 Hours</MenuItem>
                         <MenuItem value={86400}>1 Day</MenuItem>
@@ -194,6 +194,7 @@ const BtClientSummary = (props) => {
                 <DialogContent dividers={scroll === 'paper'}>
                     <BtClientsDetailed
                         orgId={props.orgId}
+                        timeframe={timeFrame}
                         networkId={props.networkId}
                         btClientList={btClientList} />
                 </DialogContent>
