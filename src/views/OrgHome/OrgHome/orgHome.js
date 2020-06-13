@@ -85,6 +85,9 @@ const OrgHome = (props) => {
     const { orgId } = useParams();
     const [isNotLoaded, setIsNotLoaded] = useState(true);
 
+    // For Child Component Operations
+    const [orgDeviceList, setOrgDeviceList] = useState([]);
+
     useEffect( function(){
         if(contextOrg.orgList.length > 0 && isNotLoaded) {
             setIsNotLoaded(false);
@@ -96,12 +99,13 @@ const OrgHome = (props) => {
         }
     }, [contextOrg]);
 
-
     return(
         <div style={{width: '100%', paddingBottom: 50}}>
             <h3 style={{fontSize: 30, marginTop: -30, marginBottom: 15}}>{getOrgName(contextOrg, orgId).toUpperCase()}</h3>
             <div>
-                <OrgHomeHeader orgId={ orgId } />
+                <OrgHomeHeader
+                    setOrgDeviceList={setOrgDeviceList}
+                    orgId={ orgId } />
             </div>
 
             <Grid
@@ -121,7 +125,9 @@ const OrgHome = (props) => {
                             paddingRight: 20,
                             paddingLeft: 20}}
                         variant="outlined">
-                        <OrgHomeMenu orgId={ orgId } />
+                        <OrgHomeMenu
+                            orgDeviceList={orgDeviceList}
+                            orgId={ orgId }  />
                     </Paper>
                 </Grid>
 

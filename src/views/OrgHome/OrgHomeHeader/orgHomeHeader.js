@@ -26,7 +26,7 @@ const OrgHomeHeader = (props) => {
                 </Grid>
 
                 <Grid className="orgHomeHeaderGridItem" item>
-                    <DevicesSummary orgId={props.orgId} />
+                    <DevicesSummary setOrgDeviceList={props.setOrgDeviceList} orgId={props.orgId} />
                 </Grid>
 
                 <Grid item>

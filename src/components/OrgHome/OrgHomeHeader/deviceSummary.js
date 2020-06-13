@@ -68,7 +68,7 @@ const getNumberOfDevices = async (
 const DevicesSummary = (props) => {
     const [contextOrg] = useContext(AppContext);
     const [numberOfDevices, setNumberOfDevices] = useState();
-    const [orgInventory, setOrgInventory] = useState();
+    const [orgInventory, setOrgInventory] = useState([]);
     const [isNotLoaded, setIsNotLoaded] = useState(true);
 
     useEffect( function(){
@@ -81,6 +81,11 @@ const DevicesSummary = (props) => {
             setOrgInventory);
         }
     }, [contextOrg, isNotLoaded, props.orgId]);
+
+    useEffect(function () {
+        if(orgInventory.length > 0)
+            props.setOrgDeviceList(orgInventory);
+    }, [orgInventory])
 
     // Handle Open Device Details Dialog
     const [open, setOpen] = useState(false);
@@ -116,15 +121,13 @@ const DevicesSummary = (props) => {
             <Dialog
                 open={open}
                 onClose={handleClose}
-                style={{maxHeight: 750}}
-                fullWidth={true}
-                maxWidth = {'md'}
+                fullScreen
+                style={{maxHeight: '80%', maxWidth: '90%', left: '5%', top: '10%'}}
                 scroll={scroll}>
-                <DialogTitle id="scroll-dialog-title">Organization Device Inventory</DialogTitle>
+                <DialogTitle>Organization Device Inventory</DialogTitle>
 
                 <DialogContent dividers={scroll === 'paper'}>
                     <DialogContentText
-                        id="scroll-dialog-description"
                         ref={descriptionElementRef}
                         tabIndex={-1}>
 
