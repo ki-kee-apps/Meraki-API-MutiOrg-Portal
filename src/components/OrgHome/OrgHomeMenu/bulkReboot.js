@@ -51,7 +51,7 @@ const submitRebootDevices = async (
         const listBeforeReboot = [...rebootList];
 
         // eslint-disable-next-line array-callback-return
-        listBeforeReboot.map(entry => {
+        listBeforeReboot.forEach((entry, index) => {
             const url = contextOrg.proxyURL + "https://" + shard +
                 ".meraki.com/api/v0/networks/" + entry.networkId +
                 "/devices/" + entry.serial + "/reboot";
@@ -68,7 +68,8 @@ const submitRebootDevices = async (
                         setRebootList([...listAfterReboot, ({
                             serial: entry.serial,
                             networkId: entry.networkId,
-                            success: data.success,
+                            model: entry.model,
+                            success:data.success===true ? 'Complete' : 'Failed',
                             rebootStatus: data.success===true ?
                                 <CheckCircleIcon style={{color: "limegreen"}} /> :
                                 <NotInterestedIcon style={{color: 'red'}} />
@@ -76,7 +77,9 @@ const submitRebootDevices = async (
                         listAfterReboot.push({
                             serial: entry.serial,
                             networkId: entry.networkId,
-                            rebootStatus: data.success==='true' ?
+                            model: entry.model,
+                            success:data.success===true ? 'Complete' : 'Failed',
+                            rebootStatus: data.success===true ?
                                 <CheckCircleIcon style={{color: "limegreen"}} /> :
                                 <NotInterestedIcon style={{color: 'red'}} />
                         });
@@ -84,7 +87,7 @@ const submitRebootDevices = async (
                     .catch(error => {
                         return error;
                     });
-                }, 100);
+                }, index*500);
             })
     }
 }
@@ -106,6 +109,7 @@ const addRebootListItem = (serialsList, orgDeviceInventory, rebootList, setReboo
                         updatedSerialsArray.push({
                             serial: newSerial,
                             networkId: currentNetworkId,
+                            model: entry.model,
                             success: '-',
                             rebootStatus: 'Pending'
                         });
@@ -120,28 +124,6 @@ const addRebootListItem = (serialsList, orgDeviceInventory, rebootList, setReboo
 const BulkReboot = (props) => {
     const [contextOrg] = useContext(AppContext);
     const [orgDeviceInventory, setOrgDeviceInventory] = useState();
-
-    // User Uploaded list of devices to be rebooted
-    const [rebootList, setRebootList] = useState([]);
-    const [textAreaSerials, setTextAreaSerials] = useState([]);
-
-    // Static Org Device Inventory
-    useEffect(function () {
-        props.setShowBulkReboot(props.open);
-        setOrgDeviceInventory(props.orgDeviceList);
-    }, [props.open, props.orgDeviceList]);
-    const descriptionElementRef = useRef(null);
-
-    // Initialize
-    useEffect(() => {
-        if (props.open) {
-            const {current: descriptionElement} = descriptionElementRef;
-            if (descriptionElement !== null) {
-                descriptionElement.focus();
-            }
-        }
-    }, [props.open]);
-
     const getNetworkName = (networkId) => {
         let name = "-";
         if (networkId !== '') {
@@ -153,6 +135,27 @@ const BulkReboot = (props) => {
         }
         return name;
     }
+
+    // User Uploaded list of devices to be rebooted
+    const [rebootList, setRebootList] = useState([]);
+    const [textAreaSerials, setTextAreaSerials] = useState([]);
+
+    // Initialize
+    useEffect(function () {
+        props.setShowBulkReboot(props.open);
+        setOrgDeviceInventory(props.orgDeviceList);
+    }, [props.open, props.orgDeviceList]);
+
+    // Static Org Device Inventory
+    const descriptionElementRef = useRef(null);
+    useEffect(() => {
+        if (props.open) {
+            const {current: descriptionElement} = descriptionElementRef;
+            if (descriptionElement !== null) {
+                descriptionElement.focus();
+            }
+        }
+    }, [props.open]);
 
     return (
         <div>
@@ -169,139 +172,139 @@ const BulkReboot = (props) => {
                 <DialogContent>
                     <Grid
                         container
-                        spacing={3}
-                        direction="column"
-                        zeroMinWidth={true}
+                        spacing={5}
+                        direction="row"
                         justify="center"
                         alignItems="flex-start">
-
-                        <Grid
-                            container
-                            spacing={3}
-                            direction="row"
-                            justify="center"
-                            alignItems="flex-start">
-                            <Grid item>
-                                <input
-                                    type="file"
-                                    onChange={e => {
-                                        if (e.target.files.length)
-                                            (e.target.files[0].text()
-                                            .then(data => {
-                                                addRebootListItem(
-                                                    data.toString(),
-                                                    orgDeviceInventory,
-                                                    rebootList,
-                                                    setRebootList
-                                                );
-                                        }))
-                                    }}
-                                    accept='text/csv'/>
-                                <Grid item>
-                                    <a href='src/assets/files/serials.csv' download='serials.csv'>Download Sample file</a>
-                                </Grid>
-                                <Paper variant="outlined">
-                                    <TextareaAutosize style={{width: '100%', minHeight: 300}}
-                                                      value={textAreaSerials}
-                                                      onChange={e => setTextAreaSerials(e.target.value)}
-                                                      placeholder="One Serial Per Line"/>
-                                </Paper>
-
-                                <Button
-                                    style={{margin: 10}}
-                                    onClick={() => {
+                        <Grid item>
+                            <input
+                                type="file"
+                                onChange={e => {
+                                    if (e.target.files.length)
+                                        (e.target.files[0].text()
+                                        .then(data => {
                                             addRebootListItem(
-                                                textAreaSerials,
+                                                data.toString(),
                                                 orgDeviceInventory,
                                                 rebootList,
                                                 setRebootList
                                             );
-                                    }}
-                                    variant="contained"
-                                    color="primary"
-                                    component="span">
-                                    Process Serials
-                                </Button>
-                            </Grid>
-
+                                    }))
+                                }}
+                                accept='text/csv'/>
                             <Grid item>
-                                <Paper variant="outlined" >
-                                    <MUIDataTable
-                                        title='DEVICES TO BE REBOOTED'
-                                        columns={[
-                                            {
-                                                name: "serial",
-                                                label: "Serial",
-                                                options: {
-                                                    filter: true,
-                                                    sort: true,
-                                                }
-                                            },
-                                            {
-                                                name: "network",
-                                                label: "Network",
-                                                options: {
-                                                    filter: true,
-                                                    sort: true,
-                                                    }
-                                            },
-                                            {
-                                                name: "success",
-                                                label: "Success",
-                                                options: {
-                                                    filter: true,
-                                                    sort: true,
-                                                }
-                                            },
-                                            {
-                                                name: "status",
-                                                label: "Status",
-                                                options: {
-                                                    filter: true,
-                                                    sort: true,
-                                                }
-                                            }
-                                        ]}
-                                        data={rebootList.map(entry => {
-                                            return (
-                                                {
-                                                    serial: entry.serial,
-                                                    network: getNetworkName(entry.networkId),
-                                                    success: entry.success,
-                                                    status:  entry.rebootStatus
-                                                })
-                                        })}
-                                        options = {[{
-                                            filterType: 'checkbox',
-                                        }]}
-                                    />
-                                </Paper>
-
-                                <Button
-                                    style={{margin: 10}}
-                                    variant="contained"
-                                    onClick={() => {
-                                            submitRebootDevices(
-                                                contextOrg,
-                                                props.orgId,
-                                                rebootList,
-                                                setRebootList
-                                            );
-                                        }}
-                                    disabled={rebootList.length===0}
-                                    color="primary"
-                                    component="span">
-                                    Reboot
-                                </Button>
-                                <Button
-                                    onClick={() => props.setShowBulkReboot(false)}
-                                    style={{margin: 10}}
-                                    variant="contained"
-                                    color="secondary"
-                                    component="span">
-                                    Cancel
-                                </Button>
+                                <a href='src/assets/files/serials.csv' download='serials.csv'>Download Sample file</a>
                             </Grid>
+                            <Paper variant="outlined">
+                                <TextareaAutosize style={{width: '100%', minHeight: 300}}
+                                                  value={textAreaSerials}
+                                                  onChange={e => setTextAreaSerials(e.target.value)}
+                                                  placeholder="One Serial Per Line"/>
+                            </Paper>
+
+                            <Button
+                                style={{margin: 10}}
+                                onClick={() => {
+                                        addRebootListItem(
+                                            textAreaSerials,
+                                            orgDeviceInventory,
+                                            rebootList,
+                                            setRebootList
+                                        );
+                                }}
+                                variant="contained"
+                                color="primary"
+                                component="span">
+                                Process Serials
+                            </Button>
+                        </Grid>
+
+                        <Grid item>
+                            <Paper variant="outlined" >
+                                <MUIDataTable
+                                    title='DEVICES TO BE REBOOTED'
+                                    columns={[
+                                        {
+                                            name: "serial",
+                                            label: "Serial",
+                                            options: {
+                                                filter: true,
+                                                sort: true,
+                                            }
+                                        },
+                                        {
+                                            name: "network",
+                                            label: "Network",
+                                            options: {
+                                                filter: true,
+                                                sort: true,
+                                                }
+                                        },
+                                        {
+                                            name: "model",
+                                            label: "Model",
+                                            options: {
+                                                filter: true,
+                                                sort: true,
+                                            }
+                                        },
+                                        {
+                                            name: "success",
+                                            label: "Success",
+                                            options: {
+                                                filter: true,
+                                                sort: true,
+                                            }
+                                        },
+                                        {
+                                            name: "status",
+                                            label: "Status",
+                                            options: {
+                                                filter: true,
+                                                sort: true,
+                                            }
+                                        }
+                                    ]}
+                                    data={rebootList.map(entry => {
+                                        return (
+                                            {
+                                                serial: entry.serial,
+                                                network: getNetworkName(entry.networkId),
+                                                model: entry.model,
+                                                success: entry.success,
+                                                status:  entry.rebootStatus
+                                            })
+                                    })}
+                                    options = {[{
+                                        filterType: 'checkbox',
+                                    }]}
+                                />
+                            </Paper>
+
+                            <Button
+                                style={{margin: 10}}
+                                variant="contained"
+                                onClick={() => {
+                                        submitRebootDevices(
+                                            contextOrg,
+                                            props.orgId,
+                                            rebootList,
+                                            setRebootList
+                                        );
+                                    }}
+                                disabled={rebootList.length===0}
+                                color="primary"
+                                component="span">
+                                Reboot
+                            </Button>
+                            <Button
+                                onClick={() => props.setShowBulkReboot(false)}
+                                style={{margin: 10}}
+                                variant="contained"
+                                color="secondary"
+                                component="span">
+                                Cancel
+                            </Button>
                         </Grid>
                     </Grid>
                 </DialogContent>

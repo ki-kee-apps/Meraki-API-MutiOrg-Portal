@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import Grid from "@material-ui/core/Grid";
 import BtClientSummary from "../../../components/NetworkHome/NetworkHeader/btClientsSummary";
 import ClientSummary from "../../../components/NetworkHome/NetworkHeader/clientsSummary";
@@ -7,12 +7,76 @@ import SwitchSummary from "../../../components/NetworkHome/NetworkHeader/Product
 import WirelessSummary from "../../../components/NetworkHome/NetworkHeader/Product/wirelessSummary";
 import SMSummary from "../../../components/NetworkHome/NetworkHeader/Product/smSummary";
 import CameraSummary from "../../../components/NetworkHome/NetworkHeader/Product/cameraSummary";
+import {AppContext} from "../../../components/Context/appContext";
+
+const httpReq = (url) => {
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Accept', 'application/json');
+    headers.append('X-Cisco-Meraki-API-Key', localStorage.getItem('meraki-api-key'));
+
+    const req = new Request(url, {
+        method: 'GET',
+        headers: headers,
+        mode: 'cors',
+    });
+    return req;
+}
+
+const getOrgShard = (contextOrg, orgId) => {
+    /* Return shard number of the current Org */
+    let shard = '';
+    // eslint-disable-next-line array-callback-return
+    contextOrg.orgList.map(entry => {
+        if (entry.id === orgId) {
+            const indexOfPeriod = entry.url.indexOf('.');
+            shard = entry.url.substring(8, indexOfPeriod);
+            return entry;
+        }
+    });
+    return shard;
+}
+
+const loadNetworkEnvironmentVariables = async (
+    contextOrg,
+    orgId,
+    networkId,
+    networkEnvironmentVariables,
+    setNetworkEnvironmentVariables) =>
+{
+    const shard = await getOrgShard(contextOrg, orgId);
+    if (shard !== '') {
+        // Get Devices in the network
+        let url = contextOrg.proxyURL + "https://" + shard +
+            ".meraki.com/api/v0/networks/" + networkId + "/devices";
+        setTimeout(() => {
+            fetch(httpReq(url))
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw Error(response.statusText);
+                    }
+                })
+                .then(data => {
+                    const consolidatedNetworkEnvironmentVariables = [...networkEnvironmentVariables, {devices: data}];
+                    setNetworkEnvironmentVariables(consolidatedNetworkEnvironmentVariables);
+                    console.log(consolidatedNetworkEnvironmentVariables);
+                })
+                .catch(error => {
+                    return error;
+                });
+        }, 0);
+    }
+}
 
 const NetworkHomeHeader = (props) => {
-    const [productTypes, setProductTypes] = useState('');
+    const [contextOrg] = useContext(AppContext);
     const [orgId, setOrgId] = useState();
     const [networkId, setNetworkId] = useState();
+    const [networkEnvironmentVariables, setNetworkEnvironmentVariables] = useState([]);
 
+    const [productTypes, setProductTypes] = useState('');
     const [hasAppliancePayload, setHasAppliancePayload] = useState(false);
     const [hasSwitchPayload, setHasSwitchPayload] = useState(false);
     const [hasWirelessPayload, setHasWirelessPayload] = useState(false);
@@ -20,10 +84,18 @@ const NetworkHomeHeader = (props) => {
     const [hasCameraPayload, setHasCameraPayload] = useState(false);
 
     useEffect(function () {
-        setProductTypes(props.currentNwObject.productTypes);
-        setOrgId(props.currentNwObject.organizationId);
-        setNetworkId(props.currentNwObject.id);
-    }, [props.currentNwObject])
+        if(contextOrg.orgList.length > 0) {
+            setProductTypes(props.currentNwObject.productTypes);
+            setOrgId(props.currentNwObject.organizationId);
+            setNetworkId(props.currentNwObject.id);
+            loadNetworkEnvironmentVariables(
+                contextOrg,
+                orgId,
+                networkId,
+                networkEnvironmentVariables,
+                setNetworkEnvironmentVariables)
+        }
+    }, [props.currentNwObject, contextOrg])
 
     useEffect(function () {
         if(props.currentNwObject) {
