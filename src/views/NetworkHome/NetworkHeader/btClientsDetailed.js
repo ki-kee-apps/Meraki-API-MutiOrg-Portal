@@ -18,6 +18,7 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
+import moment from "moment";
 
 const tableIcons = {
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -63,7 +64,7 @@ const BtClientsDetailed = (props) => {
                         mac: entry.mac,
                         manufacturer: entry.manufacturer,
                         seenByDeviceMac: entry.seenByDeviceMac,
-                        lastSeen: entry.lastSeen,
+                        lastSeen: moment.unix(entry.lastSeen).format('MM-DD-YYYY HH:mm'),
                     })
                 })}>
             </MaterialTable>

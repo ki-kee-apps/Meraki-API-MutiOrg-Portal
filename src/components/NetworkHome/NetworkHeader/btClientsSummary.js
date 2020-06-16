@@ -185,9 +185,10 @@ const BtClientSummary = (props) => {
             <Dialog
                 open={openDialog}
                 onClose={handleCloseDialog}
-                style={{maxHeight: 750}}
-                fullWidth={true}
-                maxWidth = {'md'}
+                fullScreen
+                disableEscapeKeyDown
+                disableBackdropClick
+                style={{maxHeight: '80%', maxWidth: '90%', left: '5%', top: '10%'}}
                 scroll={scroll}>
                 <DialogTitle id="scroll-dialog-title">Bluetooth Clients</DialogTitle>
 

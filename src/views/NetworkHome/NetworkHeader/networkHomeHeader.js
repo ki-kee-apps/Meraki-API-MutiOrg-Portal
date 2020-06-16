@@ -37,12 +37,49 @@ const getOrgShard = (contextOrg, orgId) => {
     return shard;
 }
 
-const loadNetworkEnvironmentVariables = async (
+const loadNetworkDeviceStatus = async (
     contextOrg,
     orgId,
     networkId,
-    networkEnvironmentVariables,
-    setNetworkEnvironmentVariables) =>
+    setNetworkDeviceStatus) =>
+{
+    const shard = await getOrgShard(contextOrg, orgId);
+    if (shard !== '') {
+        // Get Devices in the network
+        let url = contextOrg.proxyURL + "https://" + shard +
+            ".meraki.com/api/v0/organizations/" + orgId + "/deviceStatuses";
+        setTimeout(() => {
+            fetch(httpReq(url))
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw Error(response.statusText);
+                    }
+                })
+                .then(data => {
+                    let consolidatedNetworkEnvironmentVariables = [];
+                    data.forEach(entry => {
+                        if(entry.networkId === networkId)
+                            consolidatedNetworkEnvironmentVariables.push(entry);
+                    })
+                    return consolidatedNetworkEnvironmentVariables;
+                })
+                .then(data => {
+                    setNetworkDeviceStatus(data);
+                })
+                .catch(error => {
+                    return error;
+                });
+        }, 0);
+    }
+}
+
+const loadNetworkDevices = async (
+    contextOrg,
+    orgId,
+    networkId,
+    setNetworkDevices) =>
 {
     const shard = await getOrgShard(contextOrg, orgId);
     if (shard !== '') {
@@ -59,9 +96,15 @@ const loadNetworkEnvironmentVariables = async (
                     }
                 })
                 .then(data => {
-                    const consolidatedNetworkEnvironmentVariables = [...networkEnvironmentVariables, {devices: data}];
-                    setNetworkEnvironmentVariables(consolidatedNetworkEnvironmentVariables);
-                    console.log(consolidatedNetworkEnvironmentVariables);
+                    let consolidatedNetworkEnvironmentVariables = [];
+                    data.forEach(entry => {
+                        if(entry.networkId === networkId)
+                            consolidatedNetworkEnvironmentVariables.push(entry);
+                    })
+                    return consolidatedNetworkEnvironmentVariables;
+                })
+                .then(data => {
+                    setNetworkDevices(data);
                 })
                 .catch(error => {
                     return error;
@@ -70,11 +113,13 @@ const loadNetworkEnvironmentVariables = async (
     }
 }
 
+
 const NetworkHomeHeader = (props) => {
     const [contextOrg] = useContext(AppContext);
     const [orgId, setOrgId] = useState();
     const [networkId, setNetworkId] = useState();
-    const [networkEnvironmentVariables, setNetworkEnvironmentVariables] = useState([]);
+    const [networkDeviceStatus, setNetworkDeviceStatus] = useState([]);
+    const [networkDevices, setNetworkDevices] = useState([]);
 
     const [productTypes, setProductTypes] = useState('');
     const [hasAppliancePayload, setHasAppliancePayload] = useState(false);
@@ -88,17 +133,23 @@ const NetworkHomeHeader = (props) => {
             setProductTypes(props.currentNwObject.productTypes);
             setOrgId(props.currentNwObject.organizationId);
             setNetworkId(props.currentNwObject.id);
-            loadNetworkEnvironmentVariables(
-                contextOrg,
-                orgId,
-                networkId,
-                networkEnvironmentVariables,
-                setNetworkEnvironmentVariables)
         }
     }, [props.currentNwObject, contextOrg])
 
     useEffect(function () {
         if(props.currentNwObject) {
+            loadNetworkDeviceStatus(
+                contextOrg,
+                orgId,
+                networkId,
+                setNetworkDeviceStatus);
+
+            loadNetworkDevices(
+                contextOrg,
+                orgId,
+                networkId,
+                setNetworkDevices);
+
             if (Object.values(productTypes).includes('appliance')) {
                 setHasAppliancePayload(true)
             }
@@ -128,33 +179,48 @@ const NetworkHomeHeader = (props) => {
                 {
                     hasWirelessPayload &&
                     <Grid className="orgHomeHeaderGridItem" item>
-                        <BtClientSummary orgId={orgId} networkId={networkId} />
+                        <BtClientSummary
+                            orgId={orgId}
+                            networkId={networkId}/>
                     </Grid>
                 }
 
                 {
                     (hasWirelessPayload || hasSwitchPayload || hasAppliancePayload) &&
                     <Grid className="orgHomeHeaderGridItem" item>
-                        <ClientSummary orgId={orgId} networkId={networkId}/>
+                        <ClientSummary
+                            orgId={orgId}
+                            networkId={networkId}/>
                     </Grid>
                 }
 
                 {
                     hasAppliancePayload &&
                     <Grid className="orgHomeHeaderGridItem" item>
-                        <ApplianceSummary orgId={orgId} networkId={networkId} />
+                        <ApplianceSummary
+                            orgId={orgId}
+                            networkId={networkId}
+                            status={networkDeviceStatus}
+                            devices={networkDevices} />
                     </Grid>
                 }
                 {
                     hasSwitchPayload &&
                     <Grid className="orgHomeHeaderGridItem" item>
-                        <SwitchSummary orgId={orgId} networkId={networkId} />
+                        <SwitchSummary
+                            orgId={orgId}
+                            networkId={networkId}
+                            status={networkDeviceStatus}
+                            devices={networkDevices}/>
                     </Grid>
                 }
                 {
                     hasWirelessPayload &&
                     <Grid className="orgHomeHeaderGridItem" item>
-                        <WirelessSummary orgId={orgId} networkId={networkId} />
+                        <WirelessSummary orgId={orgId}
+                                         networkId={networkId}
+                                         status={networkDeviceStatus}
+                                         devices={networkDevices}/>
                     </Grid>
                 }
                 {
@@ -166,7 +232,10 @@ const NetworkHomeHeader = (props) => {
                 {
                     hasCameraPayload &&
                     <Grid className="orgHomeHeaderGridItem" item>
-                        <CameraSummary orgId={orgId} networkId={networkId} />
+                        <CameraSummary orgId={orgId}
+                                       networkId={networkId}
+                                       status={networkDeviceStatus}
+                                       devices={networkDevices}/>
                     </Grid>
                 }
             </Grid>

@@ -1,7 +1,6 @@
 import React from "react";
 import WifiIcon from '@material-ui/icons/Wifi';
 import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
-import VpnLockIcon from '@material-ui/icons/VpnLock';
 
 // Material Table Icons
 import MaterialTable from 'material-table';

@@ -2,32 +2,14 @@ import React, {useContext, useEffect, useState} from "react";
 import {useHistory} from 'react-router';
 import './org.css'
 import {AppContext} from "../../../components/Context/appContext";
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
-import TextField from "@material-ui/core/TextField";
-import IconButton from "@material-ui/core/IconButton";
-import InfoIcon from "@material-ui/icons/Info";
-import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
-
-
-function filterOrgs(unfiltered, columnName, searchString) {
-    if (searchString === "") return [...unfiltered]
-    return unfiltered.filter((entry) => {
-        return (entry[columnName] && entry[columnName].toUpperCase().indexOf(searchString.toUpperCase()) >= 0)
-    })
-}
+import Paper from "@material-ui/core/Paper";
+import MUIDataTable from "mui-datatables";
 
 const Org = () => {
     const history = useHistory();
     const [contextValue] = useContext(AppContext);
     const [orgList, setOrgList] = useState([]);
-    const [orgListFiltered, setOrgListFiltered] = useState([]);
     const [isNotLoaded, setIsNotLoaded] = useState(true);
 
     // Initialization
@@ -46,110 +28,72 @@ const Org = () => {
         }
     }, [contextValue, isNotLoaded]);
 
-    // Network List Pagination
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
-    };
-
-    // Org Search filter field
-    const [searchString, setSearchString] = useState("");
-    const [searchColumn, setSearchColumn] = useState("name");
-    useEffect(() => {
-            let filteredResults = filterOrgs(orgList, searchColumn, searchString)
-            setOrgListFiltered(filteredResults)
-        },
-        [searchString, searchColumn, orgList])
-
-
     return (
         <div className="orgListSection">
             <h3>LIST OF ORGS</h3>
 
-            <TextField
-                id="orgSearch"
-                label="Org Search"
-                type="search"
-                value={searchString}
-                onChange={e => {
-                    setPage(0);
-                    setSearchString(e.target.value);
-                }}
-                variant="outlined"/>
-
-            <div>
-                <TableContainer>
-                    <Table id="myTable" stickyHeader>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="right"
-                                           style={{fontWeight: "bold", fontSize: 16, width: 120}}>S.No</TableCell>
-                                <TableCell align="center" style={{fontWeight: "bold", fontSize: 16, width: 150}}>Org
-                                    Name</TableCell>
-                                <TableCell align="center" style={{fontWeight: "bold", fontSize: 16}}>Org
-                                    ID</TableCell>
-                                <TableCell align='center'
-                                           style={{fontWeight: "bold", fontSize: 16}}>URL</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {/* eslint-disable-next-line array-callback-return */}
-                            {orgListFiltered.map((entry, index) => {
-                                if (index >= rowsPerPage * page && index < rowsPerPage * (page + 1)) {
-                                    return (
-                                        <TableRow key={entry.id}>
-                                            <TableCell align="left" onClick={() => history.push(`${entry.id}/`)}>
-                                                <Tooltip title={JSON.stringify(entry)} interactive>
-                                                    <IconButton size="small">
-                                                        <InfoIcon
-                                                            fontSize="small"
-                                                        />
-                                                    </IconButton>
-                                                </Tooltip>
-                                                {(index + 1)}
-                                            </TableCell>
-                                            <TableCell align="left" onClick={() => history.push(`${entry.id}/`)}>
-                                                {entry.name}
-                                            </TableCell>
-                                            <TableCell align="center"
-                                                       onClick={() => history.push(`${entry.id}/`)}
-                                                       style={{fontSize: 12}}>
-                                                {entry.id}
-                                            </TableCell>
-                                            <TableCell align="center">
-                                                <Button
+            <Paper variant="outlined">
+                <MUIDataTable
+                    title='ORG LIST'
+                    columns={[
+                        {
+                            name: "name",
+                            label: "Name",
+                            options: {
+                                filter: false,
+                                sort: true,
+                                customBodyRender: entry =>
+                                    <div style={{cursor: 'pointer'}}
+                                         onClick={() => history.push(`${entry.id}/`)} >
+                                        {entry.name}
+                                    </div>
+                            }
+                        },
+                        {
+                            name: "id",
+                            label: "Org ID",
+                            options: {
+                                filter: false,
+                                sort: true,
+                                customBodyRender: id =>
+                                    <div style={{cursor: 'pointer'}}
+                                         onClick={() => history.push(`${id}/`)} >
+                                        {id}
+                                    </div>
+                            }
+                        },
+                        {
+                            name: "url",
+                            label: "Dashboard",
+                            options: {
+                                filter: false,
+                                sort: true,
+                                customBodyRender: value => {
+                                        return <Button
                                                     color='primary'
                                                     style={{backgroundColor: "white", padding: 0}}
                                                     onClick={() => {
-                                                        window.open(entry.url, '_blank').focus();
+                                                        window.open(value, '_blank').focus();
                                                     }}>
                                                     Dashboard
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    )
+                                        </Button>
                                 }
+                            },
+                        },
+                    ]}
+                    data={orgList.map(entry => {
+                        return (
+                            {
+                                name: entry,
+                                id: entry.id,
+                                url:  entry.url,
                             })
-                            }
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-
-                <TablePagination
-                    component="div"
-                    rowsPerPageOptions={[5, 25, 100]}
-                    count={orgListFiltered.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onChangePage={handleChangePage}
-                    onChangeRowsPerPage={handleChangeRowsPerPage}
+                    })}
+                    options = {[{
+                        filter: false,
+                    }]}
                 />
-            </div>
+            </Paper>
         </div>
     );
 }
