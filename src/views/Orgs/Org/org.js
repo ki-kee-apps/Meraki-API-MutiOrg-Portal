@@ -34,19 +34,15 @@ const Org = () => {
 
             <Paper variant="outlined">
                 <MUIDataTable
-                    title='ORG LIST'
                     columns={[
                         {
                             name: "name",
                             label: "Name",
                             options: {
                                 filter: false,
+                                value: entry => entry.name,
                                 sort: true,
-                                customBodyRender: entry =>
-                                    <div style={{cursor: 'pointer'}}
-                                         onClick={() => history.push(`${entry.id}/`)} >
-                                        {entry.name}
-                                    </div>
+                                customBodyRender: name => <div style={{cursor: 'pointer'}}>{name}</div>,
                             }
                         },
                         {
@@ -55,11 +51,7 @@ const Org = () => {
                             options: {
                                 filter: false,
                                 sort: true,
-                                customBodyRender: id =>
-                                    <div style={{cursor: 'pointer'}}
-                                         onClick={() => history.push(`${id}/`)} >
-                                        {id}
-                                    </div>
+                                customBodyRender: id => <div style={{cursor: 'pointer'}}>{id}</div>,
                             }
                         },
                         {
@@ -69,14 +61,14 @@ const Org = () => {
                                 filter: false,
                                 sort: true,
                                 customBodyRender: value => {
-                                        return <Button
-                                                    color='primary'
-                                                    style={{backgroundColor: "white", padding: 0}}
-                                                    onClick={() => {
-                                                        window.open(value, '_blank').focus();
-                                                    }}>
-                                                    Dashboard
-                                        </Button>
+                                    return <Button
+                                        color='primary'
+                                        style={{backgroundColor: "white", padding: 0}}
+                                        onClick={() => {
+                                            window.open(value, '_blank').focus();
+                                        }}>
+                                        Dashboard
+                                    </Button>
                                 }
                             },
                         },
@@ -84,14 +76,20 @@ const Org = () => {
                     data={orgList.map(entry => {
                         return (
                             {
-                                name: entry,
                                 id: entry.id,
-                                url:  entry.url,
+                                name: entry.name,
+                                url: entry.url,
                             })
                     })}
-                    options = {[{
+                    options={{
+                        rowsPerPage: 5,
                         filter: false,
-                    }]}
+                        rowsPerPageOptions: [5, 10, 25, 50, 100],
+                        selectableRowsHideCheckboxes: true,
+                        selectableRowsHeader: false,
+                        index: 'id',
+                        onRowClick: (rowData) => history.push(`${rowData[1].props.children}/`),
+                    }}
                 />
             </Paper>
         </div>

@@ -43,8 +43,7 @@ const submitRebootDevices = async (
     contextOrg,
     orgId,
     rebootList,
-    setRebootList) =>
-{
+    setRebootList) => {
     const shard = await getOrgShard(contextOrg, orgId);
     if (shard !== '') {
         let listAfterReboot = [];
@@ -69,26 +68,26 @@ const submitRebootDevices = async (
                             serial: entry.serial,
                             networkId: entry.networkId,
                             model: entry.model,
-                            success:data.success===true ? 'Complete' : 'Failed',
-                            rebootStatus: data.success===true ?
-                                <CheckCircleIcon style={{color: "limegreen"}} /> :
-                                <NotInterestedIcon style={{color: 'red'}} />
+                            success: data.success === true ? 'Complete' : 'Failed',
+                            rebootStatus: data.success === true ?
+                                <CheckCircleIcon style={{color: "limegreen"}}/> :
+                                <NotInterestedIcon style={{color: 'red'}}/>
                         })])
                         listAfterReboot.push({
                             serial: entry.serial,
                             networkId: entry.networkId,
                             model: entry.model,
-                            success:data.success===true ? 'Complete' : 'Failed',
-                            rebootStatus: data.success===true ?
-                                <CheckCircleIcon style={{color: "limegreen"}} /> :
-                                <NotInterestedIcon style={{color: 'red'}} />
+                            success: data.success === true ? 'Complete' : 'Failed',
+                            rebootStatus: data.success === true ?
+                                <CheckCircleIcon style={{color: "limegreen"}}/> :
+                                <NotInterestedIcon style={{color: 'red'}}/>
                         });
                     })
                     .catch(error => {
                         return error;
                     });
-                }, index*500);
-            })
+            }, index * 500);
+        })
     }
 }
 
@@ -98,7 +97,7 @@ const addRebootListItem = (serialsList, orgDeviceInventory, rebootList, setReboo
     let isValidReq = 0;
     let currentNetworkId = '';
     serialsArray.map(newSerial => {
-        if(! rebootList.some(row => row.serial.toUpperCase() === newSerial.toUpperCase()))
+        if (!rebootList.some(row => row.serial.toUpperCase() === newSerial.toUpperCase()))
             orgDeviceInventory.map(entry => {
                 isValidReq = 0;
                 if (entry.serial.toString().toUpperCase() === newSerial.trimEnd().toUpperCase() &&
@@ -182,14 +181,14 @@ const BulkReboot = (props) => {
                                 onChange={e => {
                                     if (e.target.files.length)
                                         (e.target.files[0].text()
-                                        .then(data => {
-                                            addRebootListItem(
-                                                data.toString(),
-                                                orgDeviceInventory,
-                                                rebootList,
-                                                setRebootList
-                                            );
-                                    }))
+                                            .then(data => {
+                                                addRebootListItem(
+                                                    data.toString(),
+                                                    orgDeviceInventory,
+                                                    rebootList,
+                                                    setRebootList
+                                                );
+                                            }))
                                 }}
                                 accept='text/csv'/>
                             <Grid item>
@@ -205,12 +204,12 @@ const BulkReboot = (props) => {
                             <Button
                                 style={{margin: 10}}
                                 onClick={() => {
-                                        addRebootListItem(
-                                            textAreaSerials,
-                                            orgDeviceInventory,
-                                            rebootList,
-                                            setRebootList
-                                        );
+                                    addRebootListItem(
+                                        textAreaSerials,
+                                        orgDeviceInventory,
+                                        rebootList,
+                                        setRebootList
+                                    );
                                 }}
                                 variant="contained"
                                 color="primary"
@@ -220,7 +219,7 @@ const BulkReboot = (props) => {
                         </Grid>
 
                         <Grid item>
-                            <Paper variant="outlined" >
+                            <Paper variant="outlined">
                                 <MUIDataTable
                                     title='DEVICES TO BE REBOOTED'
                                     columns={[
@@ -228,7 +227,7 @@ const BulkReboot = (props) => {
                                             name: "serial",
                                             label: "Serial",
                                             options: {
-                                                filter: true,
+                                                filter: false,
                                                 sort: true,
                                             }
                                         },
@@ -238,7 +237,7 @@ const BulkReboot = (props) => {
                                             options: {
                                                 filter: true,
                                                 sort: true,
-                                                }
+                                            }
                                         },
                                         {
                                             name: "model",
@@ -272,12 +271,14 @@ const BulkReboot = (props) => {
                                                 network: getNetworkName(entry.networkId),
                                                 model: entry.model,
                                                 success: entry.success,
-                                                status:  entry.rebootStatus
+                                                status: entry.rebootStatus
                                             })
                                     })}
-                                    options = {[{
-                                        filterType: 'checkbox',
-                                    }]}
+                                    options={{
+                                        filterType: 'dropdown',
+                                        selectableRowsHideCheckboxes: true,
+                                        selectableRowsHeader: false,
+                                    }}
                                 />
                             </Paper>
 
@@ -285,14 +286,14 @@ const BulkReboot = (props) => {
                                 style={{margin: 10}}
                                 variant="contained"
                                 onClick={() => {
-                                        submitRebootDevices(
-                                            contextOrg,
-                                            props.orgId,
-                                            rebootList,
-                                            setRebootList
-                                        );
-                                    }}
-                                disabled={rebootList.length===0}
+                                    submitRebootDevices(
+                                        contextOrg,
+                                        props.orgId,
+                                        rebootList,
+                                        setRebootList
+                                    );
+                                }}
+                                disabled={rebootList.length === 0}
                                 color="primary"
                                 component="span">
                                 Reboot

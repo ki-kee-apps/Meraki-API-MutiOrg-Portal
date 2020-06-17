@@ -1,58 +1,5 @@
 .orgListSection {
     top: 0;
     min-width: 200px;
-    max-width: 500px;
-}
-
-.orgListSection h2 {
-    display: inline-block;
-    padding: 5px;
-    margin-bottom: 20px;
-    font-size: 30px;
-    font-weight: bold;
-    text-align: center;
-}
-
-#orgSearch {
-    width: 100%;
-    font-size:22px;
-    color: white;
-}
-
-#myTable {
-    margin-top: 10px;
-    size: initial;
-    width: 100%;
-    border: 1px solid #ddd;
-    font-size: 18px;
-}
-
-#myTable th, #myTable td{
-    text-align: left;
-    padding: 12px;
-    max-width: 250px;
-}
-#myTable a {
-    color: white;
-    text-decoration: none;
-}
-
-#myTable tr:hover a {
-    color: black;
-}
-
-#myTable tr{
-    border-bottom: 1px solid #ddd;
-}
-
-#myTable tr:hover {
-    background-color: #ffffff;
-    color: black;
-    cursor: pointer;
-}
-
-#myTable th {
-    background-color: #ffdc74;
-    color: black;
-    font-size: 22px;
+    max-width: 1000px;
 }
