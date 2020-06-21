@@ -96,9 +96,9 @@ const addRebootListItem = (serialsList, orgDeviceInventory, rebootList, setReboo
     let updatedSerialsArray = []
     let isValidReq = 0;
     let currentNetworkId = '';
-    serialsArray.map(newSerial => {
+    serialsArray.forEach(newSerial => {
         if (!rebootList.some(row => row.serial.toUpperCase() === newSerial.toUpperCase()))
-            orgDeviceInventory.map(entry => {
+            orgDeviceInventory.forEach(entry => {
                 isValidReq = 0;
                 if (entry.serial.toString().toUpperCase() === newSerial.trimEnd().toUpperCase() &&
                     newSerial.trimEnd().length === 14) {
