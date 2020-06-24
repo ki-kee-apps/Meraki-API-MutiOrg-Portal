@@ -128,7 +128,6 @@ const OrgAdminSummary = (props) => {
                         ref={descriptionElementRef}
                         tabIndex={-1}>
 
-
                         <OrgAdminsDetailed orgId={props.orgId} orgAdminsDetailed={orgAdmins} />
 
                     </DialogContentText>

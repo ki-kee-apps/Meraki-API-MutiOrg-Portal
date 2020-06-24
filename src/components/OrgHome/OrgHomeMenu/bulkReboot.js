@@ -10,6 +10,8 @@ import TextareaAutosize from "@material-ui/core/TextareaAutosize";
 import MUIDataTable from "mui-datatables";
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Backdrop from "@material-ui/core/Backdrop";
 
 const httpReq = (url) => {
     const headers = new Headers();
@@ -43,7 +45,10 @@ const submitRebootDevices = async (
     contextOrg,
     orgId,
     rebootList,
-    setRebootList) => {
+    setRebootList,
+    setShowRebootProgressDialog
+) => {
+    setShowRebootProgressDialog(true);
     const shard = await getOrgShard(contextOrg, orgId);
     if (shard !== '') {
         let listAfterReboot = [];
@@ -82,6 +87,9 @@ const submitRebootDevices = async (
                                 <CheckCircleIcon style={{color: "limegreen"}}/> :
                                 <NotInterestedIcon style={{color: 'red'}}/>
                         });
+                        // Hide progress after completion of reboots
+                        if(listBeforeReboot.length === listAfterReboot.length)
+                            setShowRebootProgressDialog(false);
                     })
                     .catch(error => {
                         return error;
@@ -147,6 +155,7 @@ const BulkReboot = (props) => {
 
     // Static Org Device Inventory
     const descriptionElementRef = useRef(null);
+    const [showRebootProgressDialog, setShowRebootProgressDialog] = useState(false);
     useEffect(() => {
         if (props.open) {
             const {current: descriptionElement} = descriptionElementRef;
@@ -219,6 +228,12 @@ const BulkReboot = (props) => {
                         </Grid>
 
                         <Grid item>
+                            <Backdrop
+                                style={{zIndex: 4, color: '#fff', fontSize: 50}}
+                                open={showRebootProgressDialog}>
+                                <CircularProgress color="primary"/>
+                            </Backdrop>
+
                             <Paper variant="outlined">
                                 <MUIDataTable
                                     title='DEVICES TO BE REBOOTED'
@@ -290,7 +305,8 @@ const BulkReboot = (props) => {
                                         contextOrg,
                                         props.orgId,
                                         rebootList,
-                                        setRebootList
+                                        setRebootList,
+                                        setShowRebootProgressDialog
                                     );
                                 }}
                                 disabled={rebootList.length === 0}

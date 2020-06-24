@@ -53,6 +53,8 @@ const OrgHomeMenu = (props) => {
 
             {showBulkReboot && <BulkReboot
                                     open={showBulkReboot}
+                                    orgId={props.orgId}
+                                    orgDeviceList={props.orgDeviceList}
                                     setShowBulkReboot={setShowBulkReboot} />}
 
         </div>

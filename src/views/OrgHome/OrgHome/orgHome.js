@@ -55,7 +55,7 @@ const setNetworksContext = async (
                 .then(data => {
                     setContextOrg({networkIdToNameMap:
                         data.map(entry => {
-                            return {id: entry.id, name: entry.name}
+                            return {orgId: orgId, id: entry.id, name: entry.name}
                         })
                     })
                 })
